@@ -1,11 +1,16 @@
 const express = require('express');
+const morgan = require('morgan');
+
 const app = express();
 
 app.use(express.json());
 
+morgan.token('custom', (req, res) => { return JSON.stringify(req.body) });
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :custom'));
+
 function generateId() {
   const id = Math.floor(Math.random() * 10000);
-  console.log("New item id is: ", id);
+  // console.log("New item id is: ", id);
   return id;
 }
 
