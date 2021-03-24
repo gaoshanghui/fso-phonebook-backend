@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-// To-do: password
-const url = `mongodb+srv://gaoshanghui:2S4BHtbe2iLOzmYg@cluster0.jb7tk.mongodb.net/phonebook-app?retryWrites=true&w=majority`;
+const url = process.env.MONGODB_URI;
 
 mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true });
 
