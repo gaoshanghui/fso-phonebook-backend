@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const Person = require('./models/person');
 
 const app = express();
 
@@ -13,32 +14,16 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :c
 
 function generateId() {
   const id = Math.floor(Math.random() * 10000);
-  // console.log("New item id is: ", id);
   return id;
 }
 
-let persons = [
-  {
-    id: 1,
-    name: "Atro Hellas",
-    number: "040-1234567"
-  },
-  {
-    id: 2,
-    name: "aaa bbbb",
-    number: "010-1234567"
-  },
-  {
-    id: 3,
-    name: "ccc ssss",
-    number: "011-1230000"
-  }
-]
-
 app.get('/api/persons', (request, response) => {
-  response.json(persons);
+  Person
+    .find({})
+    .then(persons => {
+      response.json(persons);    
+    })
 });
-
 
 app.get('/api/persons/:id', (request, response) => {
   const requestId = Number(request.params.id);
@@ -63,12 +48,22 @@ app.post('/api/persons', (request, response) => {
 
   if (!body.name) return response.status(400).json({ error: 'name must be included.' });
   if (!body.number) return response.status(400).json({ error: 'number must be included.' });
-  if (persons.find(person => person.name === body.name)) return response.status(400).json({ error: 'name must be unique.' });
-  
-  body.id = generateId();
-  persons = persons.concat(body);
+  // if (persons.find(person => person.name === body.name)) return response.status(400).json({ error: 'name must be unique.' });
 
-  response.json(body)
+  const newPerson = new Person({
+    name: body.name,
+    number: body.number,
+  });
+
+  newPerson
+    .save()
+    .then((result) => {
+      console.log(`added ${result.name} number ${result.number} to phonebook`);
+      response.json(result);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 });
 
 app.get('/info', (request, response) => {
