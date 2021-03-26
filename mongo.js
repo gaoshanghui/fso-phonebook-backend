@@ -22,7 +22,7 @@ if (process.argv.length === 5) {
   const newPerson = new Person({
     name: process.argv[3],
     number: process.argv[4],
-  })
+  });
 
   newPerson
     .save()
@@ -36,7 +36,7 @@ if (process.argv.length === 5) {
 }
 
 if (process.argv.length === 3) {
-  console.log("phonebook:");
+  console.log('phonebook:');
 
   Person
     .find({})

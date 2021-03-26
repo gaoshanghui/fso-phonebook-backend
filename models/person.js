@@ -24,7 +24,7 @@ personSchema.set('toJSON', {
     delete returnObject._id;
     delete returnObject.__v;
   }
-})
+});
 
 personSchema.plugin(uniqueValidator);
 
