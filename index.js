@@ -13,10 +13,6 @@ app.use(cors());
 morgan.token('custom', (req, res) => { return JSON.stringify(req.body) });
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :custom'));
 
-// function generateId() {
-//   const id = Math.floor(Math.random() * 10000);
-//   return id;
-// }
 
 app.get('/api/persons', (request, response) => {
   Person
@@ -24,15 +20,12 @@ app.get('/api/persons', (request, response) => {
     .then(persons => response.json(persons));
 });
 
-app.get('/api/persons/:id', (request, response) => {
-  const requestId = Number(request.params.id);
-  const person = persons.filter(person => person.id === requestId);
+app.get('/api/persons/:id', (request, response, next) => {
+  const requestId = request.params.id;
 
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
+  Person.findById(requestId)
+    .then(result => response.json(result))
+    .catch(error => next(error));
 });
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -73,18 +66,24 @@ app.put('/api/persons/:id', (request, response, next) => {
     number: body.number,
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, {new: true})
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
     .then(updatedPerson => {
       response.json(updatedPerson);
     })
     .catch(error => next(error));
 })
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   const date = new Date();
-  const numberOfPersons = persons.length;
+  // const numberOfPersons = persons.length;
 
-  response.send(`<p>Phonebook has info for ${numberOfPersons} people</p><p>${date}</p>`);
+  Person.find({})
+    .then(result => {
+      console.log(result);
+      const numberOfPersons = result.length;
+      response.send(`<p>Phonebook has info for ${numberOfPersons} people</p><p>${date}</p>`);
+    })
+    .catch(error => next(error));
 });
 
 
@@ -96,7 +95,7 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint);
 
 // Handler of requests with result to errors
-const errorHandler = (error, request, response, next)  => {
+const errorHandler = (error, request, response, next) => {
   console.log(error.message);
 
   if (error.name === 'CastError') {
